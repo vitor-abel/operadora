@@ -14,9 +14,8 @@ import java.util.List;
 public class Cliente {
     private Long id;
     private String nome;
-    private LocalDate dataAtivacao;
+    private LocalDate dataCadastro;
     private LocalDate dataNascimento;
     private String cpf;
     private List<Linha> linhas;
-
 }
