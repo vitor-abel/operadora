@@ -5,10 +5,12 @@ import com.darksun.model.Plano;
 import com.darksun.model.type.Status;
 import com.darksun.repository.LinhaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Service
 public class LinhaService {
 
     @Autowired
@@ -44,28 +46,69 @@ public class LinhaService {
         Linha linha = buscarPorTelefone(ddd, numero);
         if (linha != null) {
             linha.setSaldo(linha.getSaldo() + saldo);
+            linha.setDataParaBarrar(LocalDate.now().plusDays(30));
+            repository.save(linha);
         }
     }
 
     public Boolean realizarLigacao(String ddd, String numero) {
         Linha linha = buscarPorTelefone(ddd, numero);
-        if (!linha.getStatus().equals(Status.ATIVO)) {
-            return false;
-        }
-        if (linha.getDataFimAtivacao().isAfter(LocalDate.now()) || linha.getDataFimAtivacao().isEqual(LocalDate.now())) {
-            return true;
-        } else {
-            if (linha.getSaldo() >= linha.getPlano().getPreco()) {
-                linha.setSaldo(linha.getSaldo() - linha.getPlano().getPreco());
-                linha.setDataFimAtivacao(LocalDate.now().plusDays(linha.getPlano().getDuracaoDias()));
-                return true;
+        if (linha != null) {
+            if (!linha.getStatus().equals(Status.ATIVO)) {
+                return false;
             }
+            if (linha.getDataFimAtivacao().isAfter(LocalDate.now()) || linha.getDataFimAtivacao().isEqual(LocalDate.now())) {
+                return true;
+            } else {
+                if (linha.getSaldo() >= linha.getPlano().getPreco()) {
+                    linha.setSaldo(linha.getSaldo() - linha.getPlano().getPreco());
+                    linha.setDataFimAtivacao(LocalDate.now().plusDays(linha.getPlano().getDuracaoDias()));
+                    return true;
+                }
+            }
+            return false;
         }
         return false;
     }
 
     public void alterarPlano(String ddd, String numero, Plano plano) {
         Linha linha = buscarPorTelefone(ddd, numero);
-        linha.setPlano(plano);
+        if (linha != null) {
+            linha.setPlano(plano);
+            repository.save(linha);
+        }
+    }
+
+    public void bloquearPorPerda(String ddd, String numero) {
+        Linha linha = buscarPorTelefone(ddd, numero);
+        if (linha != null) {
+            linha.setStatus(Status.BLOQUEIO_PERDA);
+            repository.save(linha);
+        }
+    }
+
+    public void barrarLinha(String ddd, String numero) {
+        Linha linha = buscarPorTelefone(ddd, numero);
+        if (linha != null) {
+            if (LocalDate.now().isAfter(linha.getDataParaBarrar())) {
+                linha.setStatus(Status.BARRADO);
+                repository.save(linha);
+            }
+        }
+    }
+
+    public void cancelarLinha(String ddd, String numero) {
+        Linha linha = buscarPorTelefone(ddd, numero);
+        if (linha != null) {
+            if (LocalDate.now().isAfter(linha.getDataParaBarrar().plusDays(90))) {
+                linha.setStatus(Status.CANCELADO);
+                repository.save(linha);
+            }
+        }
+    }
+
+    public Status verStatus(String ddd, String numero) {
+        Linha linha = buscarPorTelefone(ddd, numero);
+        return linha.getStatus();
     }
 }

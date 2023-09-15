@@ -10,33 +10,32 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value="/clientes")
+@RequestMapping(value = "/planos")
 public class PlanoController {
 
     @Autowired
     private PlanoService service;
 
-    @PostMapping("")
-    public ResponseEntity<Plano> criar (@RequestBody Plano plano){
+    @PostMapping
+    public ResponseEntity<Plano> criar(@RequestBody Plano plano) {
         return new ResponseEntity<>(service.criar(plano), HttpStatus.CREATED);
     }
 
-    @GetMapping()
-    public ResponseEntity<List<Plano>> buscar(){
+    @GetMapping
+    public ResponseEntity<List<Plano>> buscar() {
         return new ResponseEntity<>(service.buscar(), HttpStatus.OK);
     }
 
-    @PutMapping("")
-    public ResponseEntity<Plano> atualizar (@RequestBody Plano plano){
+    @PutMapping
+    public ResponseEntity<Plano> atualizar(@RequestBody Plano plano) {
         return new ResponseEntity<>(service.atualizar(plano), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Plano> deletar (@RequestParam Long id){
+    public ResponseEntity<Plano> deletar(@RequestParam Long id) {
         service.deletar(id);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
-
 
 
 }

@@ -3,9 +3,11 @@ package com.darksun.service;
 import com.darksun.model.Cliente;
 import com.darksun.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class ClienteService {
 
     @Autowired

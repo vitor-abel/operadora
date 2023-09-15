@@ -1,20 +1,14 @@
 package com.darksun.controller;
 
-import com.darksun.model.Pagamento;
-import com.darksun.service.PagamentoService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value="/clientes")
+@RequestMapping(value = "/clientes")
 public class PagamentoController {
 
-    @Autowired
-    private PagamentoService service;
+   /* @Autowired
+   private PagamentoService service;
 
     @PostMapping("")
     public ResponseEntity<Pagamento> criar (@RequestBody Pagamento pagamento){
@@ -35,8 +29,7 @@ public class PagamentoController {
     public ResponseEntity<Pagamento> deletar (@RequestParam Long id){
         service.deletar(id);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
-    }
-
+    }*/
 
 
 }
