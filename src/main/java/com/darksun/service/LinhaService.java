@@ -109,6 +109,9 @@ public class LinhaService {
 
     public Status verStatus(String ddd, String numero) {
         Linha linha = buscarPorTelefone(ddd, numero);
-        return linha.getStatus();
+        if (linha != null) {
+            return linha.getStatus();
+        }
+        return null;
     }
 }
