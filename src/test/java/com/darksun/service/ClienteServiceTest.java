@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,8 +30,8 @@ class ClienteServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         listaClientes = new ArrayList<>();
-        Cliente abel = new Cliente(1L, "Abel", LocalDate.parse("2023-09-05"), LocalDate.parse("1995-09-26"), "12345678900", null);
-        Cliente krek = new Cliente(2L, "Careca", LocalDate.parse("2023-09-06"), LocalDate.parse("1995-03-07"), "78945612300", null);
+        Cliente abel = new Cliente(1L, "Abel", LocalDate.now(), LocalDate.parse("1995-09-26"), "12345678900", null);
+        Cliente krek = new Cliente(2L, "Careca", LocalDate.now(), LocalDate.parse("1995-03-07"), "78945612300", null);
         listaClientes.add(abel);
         listaClientes.add(krek);
     }
@@ -63,9 +64,22 @@ class ClienteServiceTest {
     }
 
     @Test
-    void deletar() {
+    void deletar_Sucesso() {
         doNothing().when(repository).deleteById(any());
         service.deletar(1L);
+        verify(repository, times(1)).deleteById(any());
+    }
+
+    @Test
+    void deletar_Falha() {
+        doThrow(EmptyResultDataAccessException.class).when(repository).deleteById(any());
+        Boolean errorThrown = false;
+        try {
+            service.deletar(3L);
+        } catch (EmptyResultDataAccessException ex) {
+            errorThrown = true;
+        }
+        Assertions.assertTrue(errorThrown);
         verify(repository, times(1)).deleteById(any());
     }
 }
