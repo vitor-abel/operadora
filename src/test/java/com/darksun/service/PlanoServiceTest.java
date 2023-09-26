@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,9 +64,22 @@ class PlanoServiceTest {
     }
 
     @Test
-    void deletar() {
+    void deletar_Sucesso() {
         doNothing().when(repository).deleteById(any());
         service.deletar(1L);
+        verify(repository, times(1)).deleteById(any());
+    }
+
+    @Test
+    void deletar_Falha() {
+        doThrow(EmptyResultDataAccessException.class).when(repository).deleteById(any());
+        Boolean errorThrown = false;
+        try {
+            service.deletar(3L);
+        } catch (EmptyResultDataAccessException ex) {
+            errorThrown = true;
+        }
+        Assertions.assertTrue(errorThrown);
         verify(repository, times(1)).deleteById(any());
     }
 }
