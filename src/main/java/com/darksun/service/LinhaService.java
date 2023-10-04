@@ -46,7 +46,8 @@ public class LinhaService {
         Linha linha = buscarPorTelefone(ddd, numero);
         if (linha != null) {
             linha.setSaldo(linha.getSaldo() + saldo);
-            linha.setDataParaBarrar(LocalDate.now().plusDays(30));
+            linha.setDataParaBarrar(LocalDate.now().plusMonths(30));
+            linha.setStatus(Status.ATIVO);
             repository.save(linha);
         }
     }
@@ -83,6 +84,18 @@ public class LinhaService {
         Linha linha = buscarPorTelefone(ddd, numero);
         if (linha != null) {
             linha.setStatus(Status.BLOQUEIO_PERDA);
+            repository.save(linha);
+        }
+    }
+
+    public void desbloquearPorPerda(String ddd, String numero) {
+        Linha linha = buscarPorTelefone(ddd, numero);
+        if (linha != null) {
+            if (LocalDate.now().isAfter(linha.getDataParaBarrar())) {
+                linha.setStatus(Status.BARRADO);
+            } else {
+                linha.setStatus(Status.ATIVO);
+            }
             repository.save(linha);
         }
     }

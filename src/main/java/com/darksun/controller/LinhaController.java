@@ -67,6 +67,12 @@ public class LinhaController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PutMapping("/desbloquear")
+    public ResponseEntity<Linha> desbloquearPorPerda(@RequestParam String ddd, @RequestParam String numero) {
+        service.desbloquearPorPerda(ddd, numero);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PutMapping("/barrar")
     public ResponseEntity<Linha> barrarLinha(@RequestParam String ddd, @RequestParam String numero) {
         service.barrarLinha(ddd, numero);

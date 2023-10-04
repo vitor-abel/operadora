@@ -111,6 +111,7 @@ class LinhaServiceTest {
         when(repository.save(any())).thenReturn(listaLinhas.get(0));
         service.inserirSaldo("21", "999999999", 20.00);
         Assertions.assertEquals(21.00, listaLinhas.get(0).getSaldo());
+        Assertions.assertEquals(Status.ATIVO, listaLinhas.get(0).getStatus());
         verify(repository, times(1)).findAll();
         verify(repository, times(1)).save(any());
     }
@@ -154,7 +155,7 @@ class LinhaServiceTest {
         Boolean teste = service.realizarLigacao("21", "999999999");
         Assertions.assertTrue(teste);
         Assertions.assertEquals(5., listaLinhas.get(0).getSaldo());
-        Assertions.assertEquals(LocalDate.now().plusMonths(1), listaLinhas.get(0).getDataFimAtivacao());
+        Assertions.assertEquals(LocalDate.now().plusDays(30), listaLinhas.get(0).getDataFimAtivacao());
         verify(repository, times(1)).findAll();
     }
 
@@ -223,7 +224,35 @@ class LinhaServiceTest {
     void bloquearPorPerda_Falha() {
         when(repository.findAll()).thenReturn(listaLinhas);
         service.bloquearPorPerda("21", "777777777");
+        verify(repository, times(1)).findAll();
+        verify(repository, times(0)).save(any());
+    }
+
+    @Test
+    void desbloquearPorPerda_Sucesso_Ativo() {
+        when(repository.findAll()).thenReturn(listaLinhas);
+        when(repository.save(any())).thenReturn(listaLinhas.get(0));
+        service.desbloquearPorPerda("21", "999999999");
         Assertions.assertEquals(Status.ATIVO, listaLinhas.get(0).getStatus());
+        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).save(any());
+    }
+
+    @Test
+    void desbloquearPorPerda_Sucesso_Barrado() {
+        when(repository.findAll()).thenReturn(listaLinhas);
+        when(repository.save(any())).thenReturn(listaLinhas.get(0));
+        listaLinhas.get(0).setDataParaBarrar(LocalDate.now().minusDays(1));
+        service.desbloquearPorPerda("21", "999999999");
+        Assertions.assertEquals(Status.BARRADO, listaLinhas.get(0).getStatus());
+        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).save(any());
+    }
+
+    @Test
+    void desbloquearPorPerda_Falha() {
+        when(repository.findAll()).thenReturn(listaLinhas);
+        service.desbloquearPorPerda("21", "777777777");
         verify(repository, times(1)).findAll();
         verify(repository, times(0)).save(any());
     }
