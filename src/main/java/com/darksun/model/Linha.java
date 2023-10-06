@@ -24,6 +24,7 @@ public class Linha implements Serializable {
     private String ddd;
     private String numero;
     private Double saldo;
+    private Double saldoBloqueado;
     private LocalDate dataParaBarrar;
     private LocalDate dataFimAtivacao;
     @ManyToOne

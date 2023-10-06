@@ -34,15 +34,15 @@ class LinhaServiceTest {
         MockitoAnnotations.openMocks(this);
         Plano plano = new Plano(1L, "Turbo", 20.00, 30, true, 4, null);
         listaLinhas = new ArrayList<>();
-        Linha linha = new Linha(1L, "21", "999999999", 1.00, LocalDate.now(), LocalDate.now(), null, plano, Status.ATIVO);
-        Linha linha2 = new Linha(2L, "21", "888888888", 0.00, null, null, null, plano, Status.ATIVO);
+        Linha linha = new Linha(1L, "21", "999999999", 1.00, 0.00, LocalDate.now(), LocalDate.now(), null, plano, Status.ATIVO);
+        Linha linha2 = new Linha(2L, "21", "888888888", 0.00, 0.00, null, null, null, plano, Status.ATIVO);
         listaLinhas.add(linha);
         listaLinhas.add(linha2);
     }
 
     @Test
     void criar() {
-        Linha linha = new Linha(null, "21", "999999999", 0.00, LocalDate.now(), LocalDate.now(), null, null, Status.ATIVO);
+        Linha linha = new Linha(null, "21", "999999999", 0.00, 0.00, LocalDate.now(), LocalDate.now(), null, null, Status.ATIVO);
         when(repository.save(linha)).thenReturn(listaLinhas.get(0));
         service.criar(linha);
         Assertions.assertEquals(0., linha.getSaldo());
@@ -106,11 +106,24 @@ class LinhaServiceTest {
     }
 
     @Test
-    void inserirSaldo_Sucesso() {
+    void inserirSaldo_Sucesso_semSaldoBloqueado() {
         when(repository.findAll()).thenReturn(listaLinhas);
         when(repository.save(any())).thenReturn(listaLinhas.get(0));
         service.inserirSaldo("21", "999999999", 20.00);
         Assertions.assertEquals(21.00, listaLinhas.get(0).getSaldo());
+        Assertions.assertEquals(Status.ATIVO, listaLinhas.get(0).getStatus());
+        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).save(any());
+    }
+
+    @Test
+    void inserirSaldo_Sucesso_comSaldoBloqueado() {
+        when(repository.findAll()).thenReturn(listaLinhas);
+        when(repository.save(any())).thenReturn(listaLinhas.get(0));
+        listaLinhas.get(0).setSaldo(0.);
+        listaLinhas.get(0).setSaldoBloqueado(20.);
+        service.inserirSaldo("21", "999999999", 20.00);
+        Assertions.assertEquals(40.00, listaLinhas.get(0).getSaldo());
         Assertions.assertEquals(Status.ATIVO, listaLinhas.get(0).getStatus());
         verify(repository, times(1)).findAll();
         verify(repository, times(1)).save(any());
@@ -264,6 +277,8 @@ class LinhaServiceTest {
         listaLinhas.get(0).setDataParaBarrar(LocalDate.now().minusDays(1));
         service.barrarLinha("21", "999999999");
         Assertions.assertEquals(Status.BARRADO, listaLinhas.get(0).getStatus());
+        Assertions.assertEquals(0.00, listaLinhas.get(0).getSaldo());
+        Assertions.assertEquals(1.00, listaLinhas.get(0).getSaldoBloqueado());
         verify(repository, times(1)).findAll();
         verify(repository, times(1)).save(any());
     }

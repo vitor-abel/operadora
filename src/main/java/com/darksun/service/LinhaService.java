@@ -45,7 +45,8 @@ public class LinhaService {
     public void inserirSaldo(String ddd, String numero, Double saldo) {
         Linha linha = buscarPorTelefone(ddd, numero);
         if (linha != null) {
-            linha.setSaldo(linha.getSaldo() + saldo);
+            linha.setSaldo(linha.getSaldo() + linha.getSaldoBloqueado() + saldo);
+            linha.setSaldoBloqueado(0.);
             linha.setDataParaBarrar(LocalDate.now().plusMonths(30));
             linha.setStatus(Status.ATIVO);
             repository.save(linha);
@@ -105,6 +106,8 @@ public class LinhaService {
         if (linha != null) {
             if (LocalDate.now().isAfter(linha.getDataParaBarrar())) {
                 linha.setStatus(Status.BARRADO);
+                linha.setSaldoBloqueado(linha.getSaldo());
+                linha.setSaldo(0.);
                 repository.save(linha);
             }
         }
