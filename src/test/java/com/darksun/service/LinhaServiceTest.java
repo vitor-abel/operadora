@@ -284,6 +284,34 @@ class LinhaServiceTest {
     }
 
     @Test
+    void barrarLinha_Sucesso_semSaldo() {
+        when(repository.findAll()).thenReturn(listaLinhas);
+        when(repository.save(any())).thenReturn(listaLinhas.get(0));
+        listaLinhas.get(0).setDataParaBarrar(LocalDate.now().minusDays(1));
+        listaLinhas.get(0).setSaldo(0.00);
+        service.barrarLinha("21", "999999999");
+        Assertions.assertEquals(Status.BARRADO, listaLinhas.get(0).getStatus());
+        Assertions.assertEquals(0.00, listaLinhas.get(0).getSaldo());
+        Assertions.assertEquals(0.00, listaLinhas.get(0).getSaldoBloqueado());
+        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).save(any());
+    }
+
+    @Test
+    void barrarLinha_Sucesso_comSaldoBloqueado() {
+        when(repository.findAll()).thenReturn(listaLinhas);
+        when(repository.save(any())).thenReturn(listaLinhas.get(0));
+        listaLinhas.get(0).setDataParaBarrar(LocalDate.now().minusDays(1));
+        listaLinhas.get(0).setSaldoBloqueado(10.00);
+        service.barrarLinha("21", "999999999");
+        Assertions.assertEquals(Status.BARRADO, listaLinhas.get(0).getStatus());
+        Assertions.assertEquals(0.00, listaLinhas.get(0).getSaldo());
+        Assertions.assertEquals(11.00, listaLinhas.get(0).getSaldoBloqueado());
+        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).save(any());
+    }
+
+    @Test
     void barrarLinha_Falha_linhaInexistente() {
         when(repository.findAll()).thenReturn(listaLinhas);
         service.barrarLinha("21", "777777777");
@@ -298,6 +326,8 @@ class LinhaServiceTest {
         listaLinhas.get(0).setDataParaBarrar(LocalDate.now());
         service.barrarLinha("21", "999999999");
         Assertions.assertEquals(Status.ATIVO, listaLinhas.get(0).getStatus());
+        Assertions.assertEquals(1.00, listaLinhas.get(0).getSaldo());
+        Assertions.assertEquals(0.00, listaLinhas.get(0).getSaldoBloqueado());
         verify(repository, times(1)).findAll();
         verify(repository, times(0)).save(any());
     }
