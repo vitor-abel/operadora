@@ -106,7 +106,7 @@ public class LinhaService {
         if (linha != null) {
             if (LocalDate.now().isAfter(linha.getDataParaBarrar())) {
                 linha.setStatus(Status.BARRADO);
-                linha.setSaldoBloqueado(linha.getSaldo());
+                linha.setSaldoBloqueado(linha.getSaldo() + linha.getSaldoBloqueado());
                 linha.setSaldo(0.);
                 repository.save(linha);
             }
